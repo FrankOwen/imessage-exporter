@@ -22,7 +22,7 @@ pub enum AttachmentManager {
     Compatible,
     /// Copy attachments without converting; preserves quality but may not display correctly in all browsers
     Efficient,
-    /// Copy and convert attachments to high efficiency formats (HEIC or HEVC)
+    /// Copy attachments, converting JPEG images to high efficiency format (HEIC) using a [`Converter`]
     HighEfficiency,
 }
 
@@ -176,7 +176,11 @@ impl AttachmentManager {
         let original_extension = from.extension().unwrap_or_default();
 
         // convert jpegs to heics.
-        if original_extension == "jpeg" || original_extension == "JPEG" || original_extension == "jpg" || original_extension == "JPG" {
+        if original_extension == "jpeg"
+            || original_extension == "JPEG"
+            || original_extension == "jpg"
+            || original_extension == "JPG"
+        {
             let output_type = ImageType::Heic;
             // Update extension for conversion
             to.set_extension(output_type.to_str());
