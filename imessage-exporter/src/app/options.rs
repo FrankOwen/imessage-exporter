@@ -35,7 +35,7 @@ pub const OPTION_BYPASS_FREE_SPACE_CHECK: &str = "ignore-disk-warning";
 // Other CLI Text
 pub const SUPPORTED_FILE_TYPES: &str = "txt, html";
 pub const SUPPORTED_PLATFORMS: &str = "macOS, iOS";
-pub const SUPPORTED_ATTACHMENT_MANAGER_MODES: &str = "compatible, efficient, disabled";
+pub const SUPPORTED_ATTACHMENT_MANAGER_MODES: &str = "compatible, efficient, highefficiency, disabled";
 pub const ABOUT: &str = concat!(
     "The `imessage-exporter` binary exports iMessage data to\n",
     "`txt` or `html` formats. It can also run diagnostics\n",
@@ -305,7 +305,7 @@ fn get_command() -> Command {
             Arg::new(OPTION_ATTACHMENT_MANAGER)
             .short('c')
             .long(OPTION_ATTACHMENT_MANAGER)
-            .help(format!("Specify an optional method to use when copying message attachments\nCompatible will convert HEIC files to JPEG\nEfficient will copy files without converting anything\nIf omitted, the default is `{}`\n", AttachmentManager::default()))
+            .help(format!("Specify an optional method to use when copying message attachments\nCompatible will convert HEIC files to JPEG\nEfficient will copy files without converting anything\nHighEfficiency will convert JPEG files to HEIC\nIf omitted, the default is `{}`\n", AttachmentManager::default()))
             .display_order(2)
             .value_name(SUPPORTED_ATTACHMENT_MANAGER_MODES),
         )

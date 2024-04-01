@@ -9,7 +9,7 @@ use imessage_database::tables::{attachment::Attachment, messages::Message};
 use uuid::Uuid;
 
 use crate::app::{
-    converter::{convert_heic, Converter, ImageType},
+    converter::{convert_image, Converter, ImageType},
     runtime::Config,
 };
 
@@ -22,6 +22,8 @@ pub enum AttachmentManager {
     Compatible,
     /// Copy attachments without converting; preserves quality but may not display correctly in all browsers
     Efficient,
+    /// Copy and convert attachments to high efficiency formats (HEIC or HEVC)
+    HighEfficiency,
 }
 
 impl AttachmentManager {
@@ -31,6 +33,7 @@ impl AttachmentManager {
             "compatible" => Some(Self::Compatible),
             "efficient" => Some(Self::Efficient),
             "disabled" => Some(Self::Disabled),
+            "highefficiency" => Some(Self::HighEfficiency),
             _ => None,
         }
     }
@@ -81,6 +84,12 @@ impl AttachmentManager {
                     None => Self::copy_raw(from, &to),
                 },
                 AttachmentManager::Efficient => Self::copy_raw(from, &to),
+                AttachmentManager::HighEfficiency => match &config.converter {
+                    Some(converter) => {
+                        Self::copy_convert_jpegs(from, &mut to, converter);
+                    }
+                    None => Self::copy_raw(from, &to),
+                },
                 AttachmentManager::Disabled => unreachable!(),
             };
 
@@ -142,7 +151,7 @@ impl AttachmentManager {
             match output_type {
                 Some(output_type) => {
                     to.set_extension(output_type.to_str());
-                    if convert_heic(from, to, converter, &output_type).is_none() {
+                    if convert_image(from, to, converter, &output_type).is_none() {
                         eprintln!("Unable to convert {from:?}");
                     }
                 }
@@ -154,7 +163,24 @@ impl AttachmentManager {
             let output_type = ImageType::Jpeg;
             // Update extension for conversion
             to.set_extension(output_type.to_str());
-            if convert_heic(from, to, converter, &output_type).is_none() {
+            if convert_image(from, to, converter, &output_type).is_none() {
+                eprintln!("Unable to convert {from:?}");
+            }
+        } else {
+            Self::copy_raw(from, to);
+        }
+    }
+
+    /// Copy a file, converting any jpegs to heics.
+    fn copy_convert_jpegs(from: &Path, to: &mut PathBuf, converter: &Converter) {
+        let original_extension = from.extension().unwrap_or_default();
+
+        // convert jpegs to heics.
+        if original_extension == "jpeg" || original_extension == "JPEG" || original_extension == "jpg" || original_extension == "JPG" {
+            let output_type = ImageType::Heic;
+            // Update extension for conversion
+            to.set_extension(output_type.to_str());
+            if convert_image(from, to, converter, &output_type).is_none() {
                 eprintln!("Unable to convert {from:?}");
             }
         } else {
@@ -175,6 +201,7 @@ impl Display for AttachmentManager {
             AttachmentManager::Disabled => write!(fmt, "disabled"),
             AttachmentManager::Compatible => write!(fmt, "compatible"),
             AttachmentManager::Efficient => write!(fmt, "efficient"),
+            AttachmentManager::HighEfficiency => write!(fmt, "highefficiency"),
         }
     }
 }
