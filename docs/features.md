@@ -50,6 +50,7 @@ This tool targets the current latest public release for macOS and iMessage. It m
     - Attachment `HEIC` files convert to `JPEG`
     - Sticker `HEIC` files convert to `PNG`
     - Sticker `HEICS` files convert to `GIF`
+  - JPEG images can be converted to HEIC, reducing size (and compatibility)
   - Attachments are displayed as
     - File paths in TXT exports
     - Embeds in HTML exports (including `<img>`, `<video>`, and `<audio>`)

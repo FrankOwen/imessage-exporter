@@ -12,6 +12,8 @@ pub enum ImageType {
     Gif,
     #[allow(non_camel_case_types)]
     Png,
+    #[allow(non_camel_case_types)]
+    Heic,
 }
 
 impl ImageType {
@@ -20,6 +22,7 @@ impl ImageType {
             ImageType::Jpeg => "jpeg",
             ImageType::Gif => "gif",
             ImageType::Png => "png",
+            ImageType::Heic => "heic",
         }
     }
 }
@@ -71,7 +74,7 @@ fn exists(name: &str) -> bool {
         .unwrap_or(false)
 }
 
-/// Convert a HEIC image file to the provided format
+/// Convert an image file to the provided format
 ///
 /// This uses the macOS builtin `sips` program
 /// Docs: <https://www.unix.com/man-page/osx/1/sips/> (or `man sips`)
@@ -80,7 +83,7 @@ fn exists(name: &str) -> bool {
 /// of failing, `sips` will create a file called `fake` in `/`. Subsequent writes
 /// by `sips` to the same location will not fail, but since it is a file instead
 /// of a directory, this will fail for non-`sips` copies.
-pub fn convert_heic(
+pub fn convert_image(
     from: &Path,
     to: &Path,
     converter: &Converter,
